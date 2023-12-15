@@ -12,22 +12,43 @@ def convert_coordinates(coord):
     col = int(coord[1:]) - 1
     return row, col
 
+def validate_ship_placement(board, ship_coordinates):
+    for x, y in ship_coordinates:
+        if board[x][y] != '.':
+            return False
+
+    x_values, y_values = zip(*ship_coordinates)
+    if len(set(x_values)) == 1 or len(set(y_values)) == 1:
+        return True
+    return False
+
 def place_ship(board, ship_size):
     while True:
         try:
             print_board(board)
             print(f"Place a ship of size {ship_size}")
-            coords = input("Enter the coordinates (e.g., A1 A2 A3 A4 A5): ").split()
-            ship_coordinates = [convert_coordinates(coord) for coord in coords]
+            start_coord = input("Enter the starting coordinates (e.g., A1): ")
+            end_coord = input("Enter the ending coordinates (e.g., A5): ")
 
-            for x, y in ship_coordinates:
-                if board[x][y] != '.':
-                    raise ValueError("Invalid placement. Ships cannot overlap.")
-            
-            for x, y in ship_coordinates:
-                board[x][y] = 'O'
+            start_x, start_y = convert_coordinates(start_coord)
+            end_x, end_y = convert_coordinates(end_coord)
 
-            break
+            ship_coordinates = []
+            if start_x == end_x:
+                # Place horizontally
+                ship_coordinates = [(start_x, start_y + i) for i in range(ship_size)]
+            elif start_y == end_y:
+                # Place vertically
+                ship_coordinates = [(start_x + i, start_y) for i in range(ship_size)]
+            else:
+                raise ValueError("Invalid placement. Ships cannot be placed diagonally.")
+
+            if validate_ship_placement(board, ship_coordinates):
+                for x, y in ship_coordinates:
+                    board[x][y] = 'O'
+                break
+            else:
+                raise ValueError("Invalid placement. Ships cannot overlap or be diagonal.")
         except (ValueError, IndexError):
             print("Invalid input. Try again.")
 

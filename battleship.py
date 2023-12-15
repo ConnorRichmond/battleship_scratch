@@ -1,8 +1,4 @@
-import os
 import random
-
-def clear_screen():
-    os.system('cls' if os.name == 'nt' else 'clear')
 
 def print_board(board):
     print("   1 2 3 4 5 6 7 8 9 10")
@@ -29,7 +25,6 @@ def validate_ship_placement(board, ship_coordinates):
 def place_ship(board, ship_size):
     while True:
         try:
-            clear_screen()
             print_board(board)
             print(f"Place a ship of size {ship_size}")
             start_coord = input("Enter the starting coordinates (e.g., A1): ")
@@ -64,20 +59,19 @@ def random_place_ship(board, ship_size):
         orientation = random.choice(['h', 'v'])
 
         try:
-            if orientation == 'h' and y + ship_size <= 10:
+            if orientation == 'h':
                 for i in range(ship_size):
                     if board[x][y + i] != '.':
                         raise ValueError
                 for i in range(ship_size):
                     board[x][y + i] = 'O'
-            elif orientation == 'v' and x + ship_size <= 10:
+            elif orientation == 'v':
                 for i in range(ship_size):
                     if board[x + i][y] != '.':
                         raise ValueError
                 for i in range(ship_size):
                     board[x + i][y] = 'O'
-            else:
-                raise ValueError
+
             break
         except ValueError:
             continue
@@ -85,7 +79,6 @@ def random_place_ship(board, ship_size):
 def player_turn(board):
     while True:
         try:
-            clear_screen()
             print_board(board)
             coord = input("Enter the coordinates to attack (e.g., A1): ")
             x, y = convert_coordinates(coord)
@@ -139,13 +132,11 @@ def battleship_game():
     while True:
         player_turn(computer_board)
         if is_winner(computer_board):
-            clear_screen()
             print("Congratulations! You won!")
             break
 
         computer_turn(player_board)
         if is_winner(player_board):
-            clear_screen()
             print("Sorry, you lost. Better luck next time!")
             break
 

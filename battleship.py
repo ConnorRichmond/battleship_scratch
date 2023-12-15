@@ -78,9 +78,7 @@ def get_player_ship_manually(size):
 def update_board_on_hit(board, guess, ships):
     """Update the board when there is a hit."""
     row, col = guess
-    if board[row][col] == '.':
-        board[row][col] = 'M'  # Mark the cell as a miss
-        return False  # It's a miss
+    board[row][col] = 'H'  # Mark the cell as a hit
 
     for ship_cells in ships:
         if guess in ship_cells:
@@ -89,10 +87,7 @@ def update_board_on_hit(board, guess, ships):
                 for sunk_cell in ship_cells:
                     row, col = sunk_cell
                     board[row][col] = 'S'  # Mark the cell as a part of a sunk ship
-            else:
-                board[row][col] = 'H'  # Mark the cell as a hit
             return True  # It's a hit
-
     return False  # It's a miss
 
 def update_board_on_miss(board, guess):
@@ -121,28 +116,23 @@ def get_player_guess(size):
         print("Invalid input. Please enter a valid row number.")
         return get_player_guess(size)
 
-def player_turn(cpu_board, cpu_ships):
+def player_turn(board, computer_ships):
     """Execute the player's turn."""
-    size = len(cpu_board)
-    print_board(cpu_board)
-    guess = get_player_guess(size)
-    result = update_board_on_hit(cpu_board, guess, cpu_ships)
+    guess = get_player_guess(len(board))
 
-    if result:
-        print("Hit! You've hit the computer's ship.")
+    if update_board_on_hit(board, guess, computer_ships):
+        print(f"You hit the computer's fleet at {chr(ord('A') + guess[1])}{guess[0] + 1}!")
     else:
-        print("Miss! You've missed the computer's ship.")
+        print(f"You missed at {chr(ord('A') + guess[1])}{guess[0] + 1}.")
 
-def computer_turn(player_board, player_ships):
-    """Execute the computer's turn."""
-    size = len(player_board)
-    guess = (random.randint(0, size - 1), random.randint(0, size - 1))
-    result = update_board_on_hit(player_board, guess, player_ships)
+def computer_turn(player_ships, board):
+    """Simulate the computer's turn."""
+    guess = random.choice([(row, col) for row in range(len(board)) for col in range(len(board[0]))])
 
-    if result:
-        print(f"Computer hit your ship at {chr(ord('A') + guess[1])}{guess[0] + 1}.")
+    if update_board_on_hit(board, guess, player_ships):
+        print(f"The computer hit your fleet at {chr(ord('A') + guess[1])}{guess[0] + 1}!")
     else:
-        print(f"Computer missed at {chr(ord('A') + guess[1])}{guess[0] + 1}.")
+        print(f"The computer missed at {chr(ord('A') + guess[1])}{guess[0] + 1}.")
 
 def play_battleship():
     print("Welcome to Battleship!")
@@ -165,20 +155,20 @@ def play_battleship():
 
     # Place ships for the player and the computer
     player_ships = [get_player_ship_manually(size) for _ in range(num_ships)]
-    computer_ships = [place_ship_randomly(computer_board, ship_size) for ship_size in [len(ship) for ship in player_ships]]
+    computer_ships = [place_ship_randomly(computer_board, random.randint(1, size)) for _ in range(num_ships)]
 
     while any(ships for ships in player_ships) and any(ships for ships in computer_ships):
         print("\nPlayer's turn:")
-        player_turn(computer_board, computer_ships)
-        print_board(computer_board)
+        player_turn(player_board, computer_ships)
+        print_board(player_board, show_ships=True)
 
         if not any(ships for ships in computer_ships):
             print("Congratulations! You've sunk all of the computer's fleet.")
             break
 
         print("\nComputer's turn:")
-        computer_turn(player_board, player_ships)
-        print_board(player_board, show_ships=True)
+        computer_turn(player_ships, computer_board)
+        print_board(computer_board)
 
         if not any(ships for ships in player_ships):
             print("Oh no! The computer has sunk all of your fleet.")

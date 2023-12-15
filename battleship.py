@@ -84,10 +84,10 @@ def update_board_on_hit(board, guess, ships):
         if guess in ship_cells:
             ship_cells.remove(guess)
             if not ship_cells:  # If the ship is sunk
-                for sunk_cell in ship_cells:
+                for sunk_cell in ship_cells:  # Iterate over the sunk ship cells
                     row, col = sunk_cell
                     board[row][col] = 'S'  # Mark the cell as a part of a sunk ship
-            return True  # It's a hit
+                return True  # It's a hit
     return False  # It's a miss
 
 def update_board_on_miss(board, guess):
